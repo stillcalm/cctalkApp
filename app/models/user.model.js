@@ -42,6 +42,8 @@ class User {
           result(null, res[0]);
           return;
         }
+        result({ kind: "not_found" }, null);
+        return;
       }
     );
   }

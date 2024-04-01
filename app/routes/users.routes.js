@@ -1,6 +1,10 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const jwtAuth = require("../middleware/jwt");
+const router = express.Router();
 const user = require("../controllers/users.controller");
+
+// use jwtAuth middleware to authenticate the token
+router.use(jwtAuth);
 
 router.post("/login", user.login);
 /* GET users listing. */

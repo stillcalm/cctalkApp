@@ -74,10 +74,9 @@ exports.login = (req, res) => {
   User.login(req.body.username, req.body.password_hash, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
-        res.status(404).send({});
-      } else {
-        res.status(500).send({
-          message: "Error retrieving User with id " + req.params.uuid,
+        res.status(200).send({
+          status: 200,
+          message: "账号或密码错误",
         });
       }
     } else {
@@ -86,7 +85,7 @@ exports.login = (req, res) => {
       });
       res.send({
         status: 200,
-        message: "User found",
+        message: "登录成功",
         data: {
           uuid: data.uuid,
           token: token,
@@ -117,6 +116,7 @@ exports.getUserInfo = (req, res) => {
           nickname: data.nickname,
           gender: data.gender,
           birthday: data.birthday,
+          info: req.auth,
         },
       });
     }

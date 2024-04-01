@@ -4,11 +4,11 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('../app/app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
 //const mqtt = require('mqtt');
-const mqttServer = require('../mqtt/index.js')
+const mqttServer = require('../app/mqtt/index.js')
 const mqttPort = '1883';
 /**
  * Get port from environment and store in Express.
