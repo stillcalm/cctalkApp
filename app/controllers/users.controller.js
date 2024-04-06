@@ -74,8 +74,8 @@ exports.login = (req, res) => {
   User.login(req.body.username, req.body.password_hash, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
-        res.status(200).send({
-          status: 200,
+        res.status(401).send({
+          status: 401,
           message: "账号或密码错误",
         });
       }
