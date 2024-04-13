@@ -11,7 +11,8 @@ const jwtAuth = expressjwt({
   // 加入算法
   algorithms: ["HS256"],
   // 自定义获取token的函数
-/*   getToken: (req) => {
+  getToken: (req) => {
+    console.log(req.headers.authorization);
     if (
       req.headers.authorization &&
       req.headers.authorization.split(" ")[0] === "Bearer"
@@ -19,12 +20,13 @@ const jwtAuth = expressjwt({
       console.log(req.headers.authorization.split(" ")[1]);
       return req.headers.authorization.split(" ")[1];
     } else if (req.query && req.query.token) {
+      console.log(req.headers.authorization.split(" ")[1]);
       return req.query.token;
     }
-  }, */
+  },
   // 设置jwt认证白名单，比如/login登录接口不需要拦截
 }).unless({
   path: ["/api/users/register", "/api/users/login"],
 });
 
-module.exports = jwtAuth;
+module.exports = { jwtAuth };

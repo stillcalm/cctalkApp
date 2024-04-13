@@ -8,7 +8,7 @@ class User {
     this.password_hash = password_hash;
     this.email = email;
     this.phone_number = "";
-    this.avatar_url = "https://i.imgur.com/Qr71crq.jpg";
+    this.avatar_url = "";
     this.nickname = "默认用户";
     this.gender = "Male";
     this.birthday = "2000-01-01";
@@ -77,7 +77,23 @@ class User {
       }
 
       // not found
-      result({ kind: "not_found" }, null);
+      return result({ kind: "not_found" }, null);
+    });
+  }
+
+  static findByUsername(username, result) {
+    sql.query("SELECT * FROM users WHERE username = ?", username, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+
+      if (res.length) {
+        result(null, res[0]);
+        return;
+      }
+      return result({ kind: "not_found" }, null);
     });
   }
 

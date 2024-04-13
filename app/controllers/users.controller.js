@@ -5,8 +5,7 @@ const jwt = require("jsonwebtoken");
 // Create and Save a new User
 exports.create = (req, res) => {
   if (!req.body) {
-    res.status(400).send({ message: "Content can not be empty!" });
-    return;
+    return res.status(400).send({ message: "Content can not be empty!" });
   }
 
   // Create a User
@@ -19,10 +18,10 @@ exports.create = (req, res) => {
   // Save User in the database
   User.create(user, (err, data) => {
     if (err)
-      res.status(500).send({
+      return res.status(500).send({
         message: err.message || "Some error occurred while creating the User.",
       });
-    else res.send(data);
+    else return res.send(data);
   });
 };
 
@@ -31,15 +30,15 @@ exports.findAll = (req, res) => {
   User.getAll((err, data) => {
     if (err)
       if (err.kind === "not_found") {
-        res.status(404).send({
+        return res.status(404).send({
           message: `Not found User with id ${req.params.id}.`,
         });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: err.message || "Some error occurred while retrieving users.",
         });
       }
-    else res.send(data);
+    else return res.send(data);
   });
 };
 
@@ -48,16 +47,16 @@ exports.findOne = (req, res) => {
   User.findByUUId(req.params.uuid, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
-        res.status(404).send({
+        return res.status(404).send({
           message: `Not found User with id ${req.params.uuid}.`,
         });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: "Error retrieving User with id " + req.params.uuid,
         });
       }
     } else
-      res.send({
+      return res.send({
         status: 200,
         message: "User found",
         data: {
@@ -74,7 +73,7 @@ exports.login = (req, res) => {
   User.login(req.body.username, req.body.password_hash, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
-        res.status(401).send({
+        return res.status(401).send({
           status: 401,
           message: "账号或密码错误",
         });
@@ -83,12 +82,12 @@ exports.login = (req, res) => {
       const token = jwt.sign({ username: req.body.username }, mySecret, {
         expiresIn: "24h",
       });
-      res.send({
+      return res.send({
         status: 200,
         message: "登录成功",
         data: {
           uuid: data.uuid,
-          token: token,
+          token: "Bearer " + token,
         },
       });
     }
@@ -97,15 +96,15 @@ exports.login = (req, res) => {
 
 // get User info by uuid
 exports.getUserInfo = (req, res) => {
-  User.findOne(req.params.uuid, (err, data) => {
+  User.findByUUId(req.query.uuid, (err, data) => {
     if (err) {
       if (err.kind === "not_found") {
-        res.status(404).send({
-          message: `Not found User with id ${req.params.uuid}.`,
+        return res.status(404).send({
+          message: `Not found User with id ${req.query.uuid}.`,
         });
       }
     } else {
-      res.send({
+      return res.send({
         status: 200,
         message: "User found",
         data: {
@@ -116,7 +115,30 @@ exports.getUserInfo = (req, res) => {
           nickname: data.nickname,
           gender: data.gender,
           birthday: data.birthday,
-          info: req.auth,
+        },
+      });
+    }
+  });
+};
+
+exports.getUserByUsername = (req, res) => {
+  User.findByUsername(req.query.username, (err, data) => {
+    if (err) {
+      if (err.kind === "not_found") {
+        return res.status(404).send({
+          message: `Not found User with id ${req.query.username}.`,
+        });
+      }
+    } else {
+      return res.send({
+        status: 200,
+        message: "User found",
+        data: {
+          uuid: data.uuid,
+          nickname: data.nickname,
+          username: data.username,
+          avatarUrl: data.avatar_url,
+          signature: data.signature,
         },
       });
     }
@@ -127,7 +149,7 @@ exports.getUserInfo = (req, res) => {
 exports.updateUserInfo = (req, res) => {
   // Validate Request
   if (!req.body) {
-    res.status(400).send({
+    return res.status(400).send({
       message: "Content can not be empty!",
     });
   }
@@ -135,11 +157,10 @@ exports.updateUserInfo = (req, res) => {
   console.log(req.params.uuid);
   User.updateUserInfo(req.params.uuid, req.body, (err, data) => {
     if (err)
-      res.status(500).send({
+      return res.status(500).send({
         message: "Error updating User with id " + req.params.uuid,
       });
-    else res.send({ message: "User was updated successfully!" });
-    return;
+    else return res.send({ message: "User was updated successfully!" });
   });
 };
 
@@ -148,14 +169,14 @@ exports.delete = (req, res) => {
   User.removeByUUId(req.params.uuid, (err, data) => {
     if (err)
       if (err.kind === "not_found") {
-        res.status(404).send({
+        return res.status(404).send({
           message: `Not found User with id ${req.params.uuid}.`,
         });
       } else {
-        res.status(500).send({
+        return res.status(500).send({
           message: "Could not delete User with id " + req.params.uuid,
         });
       }
-    else res.send({ message: `User was deleted successfully!` });
+    else return res.send({ message: `User was deleted successfully!` });
   });
 };
