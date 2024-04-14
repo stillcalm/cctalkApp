@@ -81,19 +81,48 @@ class User {
     });
   }
 
-  static findByUsername(username, result) {
-    sql.query("SELECT * FROM users WHERE username = ?", username, (err, res) => {
+  static findByUUIds(uuidList, result) {
+    if (!Array.isArray(uuidList)) {
+      uuidList = [uuidList];
+    }
+
+    const placeholders = uuidList.map(() => "?").join(", ");
+    const sqlQuery = `SELECT uuid, username, nickname, avatar_url, signature  FROM users WHERE uuid IN (${placeholders})`;
+
+    sql.query(sqlQuery, uuidList, (err, res) => {
       if (err) {
         console.log("error: ", err);
-        result(err, null);
-        return;
+        return result(err, null);
       }
 
       if (res.length) {
-        result(null, res[0]);
-        return;
+        return result(null, res);
       }
+
       return result({ kind: "not_found" }, null);
+    });
+  }
+
+  static findByUsername(username) {
+    return new Promise((resolve, reject) => {
+      sql.query(
+        "SELECT * FROM users WHERE username = ?",
+        username,
+        (err, res) => {
+          if (err) {
+            console.log("error: ", err);
+            reject(err); // 如果发生错误，拒绝Promise
+            return;
+          }
+
+          if (res.length) {
+            resolve(res[0]); // 如果找到用户，解析Promise
+            return;
+          }
+          reject({ kind: "not_found" }); // 如果未找到用户，拒绝Promise
+          return;
+        }
+      );
     });
   }
 

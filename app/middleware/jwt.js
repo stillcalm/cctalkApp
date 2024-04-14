@@ -12,15 +12,15 @@ const jwtAuth = expressjwt({
   algorithms: ["HS256"],
   // 自定义获取token的函数
   getToken: (req) => {
-    console.log(req.headers.authorization);
+    //console.log(req.headers.authorization);
     if (
       req.headers.authorization &&
       req.headers.authorization.split(" ")[0] === "Bearer"
     ) {
-      console.log(req.headers.authorization.split(" ")[1]);
+      //console.log(req.headers.authorization.split(" ")[1]);
       return req.headers.authorization.split(" ")[1];
     } else if (req.query && req.query.token) {
-      console.log(req.headers.authorization.split(" ")[1]);
+      //console.log(req.headers.authorization.split(" ")[1]);
       return req.query.token;
     }
   },

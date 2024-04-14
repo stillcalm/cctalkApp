@@ -1,5 +1,5 @@
 const express = require("express");
-const { jwtAuth } = require("../middleware/jwt");
+/* const { jwtAuth } = require("../middleware/jwt"); */
 const router = express.Router();
 const user = require("../controllers/users.controller");
 
@@ -16,9 +16,9 @@ router.post("/register", user.create);
 // Update a Tutorial with id
 router.delete("/:uuid", user.delete);
 
-router.get("/userinfo", user.getUserInfo);
+router.get("/getUserinfo", user.getUserInfo);
 
-router.get("/getUserByUsername", user.getUserByUsername)
+router.get("/getUserByUsername", user.getUserByUsername);
 
 router.post("/update/:uuid", user.updateUserInfo);
 

@@ -10,7 +10,7 @@ mqttServer.listen(port, function () {
 aedes.authenticate = function (_client, username, password, callback) {
     // with no error, successful be true
     // callback(error, successful)
-    callback(null, (uuid === '57774bf8-bb17-4519-b9d5-becbbf61c25a' && password.toString() === '123456'));
+    callback(null, (username === 'user' && password.toString() === '123456'));
 }
 
 // 客户端连接
