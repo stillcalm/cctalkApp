@@ -21,7 +21,16 @@ exports.create = (req, res) => {
       return res.status(500).send({
         message: err.message || "Some error occurred while creating the User.",
       });
-    else return res.send(data);
+    else
+      return res.status(200).send({
+        status: 200,
+        message: "User was registered successfully!",
+        data: {
+          uuid: data.uuid,
+          username: data.username,
+          email: data.email,
+        },
+      });
   });
 };
 

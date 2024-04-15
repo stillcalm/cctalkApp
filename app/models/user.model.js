@@ -31,7 +31,8 @@ class User {
 
   static login(username, password_hash, result) {
     sql.query(
-      `SELECT * FROM users WHERE username = "${username}" AND password_hash = "${password_hash}"`,
+      "SELECT * FROM users WHERE username = ? AND password_hash = ?",
+      [username, password_hash],
       (err, res) => {
         if (err) {
           console.log("error: ", err);
