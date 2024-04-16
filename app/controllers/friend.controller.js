@@ -73,26 +73,54 @@ exports.verifyFriend = async (req, res) => {
 exports.getFriends = async (req, res) => {
   try {
     const data = await Friend.getFriendsByUUID(req.query.uuid);
+    const handleStatus = (user1, user2) => {
+      if (user1 == "confirmed" && user2 == "confirmed") {
+        return "confirmed";
+      } else if (user1 == "confirmed" && user2 == "pending") {
+        return "applied";
+      } else if (user1 == "pending" && user2 == "confirmed") {
+        return "request";
+      }
+    };
     const friendsList = data.reduce((list, friendRelation) => {
       if (friendRelation.user1_uuid === req.query.uuid) {
         list.push({
           chat_uuid: friendRelation.friend_uuid,
           uuid: friendRelation.user2_uuid,
+          status: handleStatus(
+            friendRelation.user1_status,
+            friendRelation.user2_status
+          ),
         });
       } else {
         list.push({
           chat_uuid: friendRelation.friend_uuid,
           uuid: friendRelation.user1_uuid,
+          status: handleStatus(
+            friendRelation.user2_status,
+            friendRelation.user1_status
+          ),
         });
       }
       return list;
     }, []);
-
+    const uuidList = friendsList.map((friend) => friend.uuid);
+    const userInfos = await User.findByUUIds(uuidList);
+    const enrichedFriendsList = friendsList.map((friend) => {
+      const userInfo = userInfos.find((info) => info.uuid === friend.uuid);
+      if (userInfo) {
+        return {
+          ...friend,
+          userInfo: userInfo,
+        };
+      }
+      return friend;
+    });
     return res.send({
       status: 200,
       message: "Friends were retrieved successfully!",
       data: {
-        friendsList: friendsList,
+        friendsList: enrichedFriendsList,
       },
     });
   } catch (err) {

@@ -26,10 +26,9 @@ class Friend {
     return new Promise((resolve, reject) => {
       sql.query(
         "UPDATE friend_relations SET user2_status = ? WHERE friend_uuid = ?",
-        [status, friend_uuid ],
+        [status, friend_uuid],
         (err, res) => {
           if (err) {
-            console.error("Error updating friend status:", err);
             reject(err);
             return;
           }
@@ -47,11 +46,10 @@ class Friend {
   static getFriendsByUUID(user_uuid) {
     return new Promise((resolve, reject) => {
       sql.query(
-        "SELECT user1_uuid, user2_uuid, friend_uuid, status FROM friend_relations WHERE user1_uuid = ? OR user2_uuid = ?",
+        "SELECT user1_uuid, user2_uuid, friend_uuid, user1_status, user2_status FROM friend_relations WHERE user1_uuid = ? OR user2_uuid = ?",
         [user_uuid, user_uuid],
         (err, res) => {
           if (err) {
-            console.error("Error fetching friends by UUID:", err);
             reject(err);
           } else {
             resolve(res);

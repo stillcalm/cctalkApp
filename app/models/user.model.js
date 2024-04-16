@@ -82,25 +82,24 @@ class User {
     });
   }
 
-  static findByUUIds(uuidList, result) {
-    if (!Array.isArray(uuidList)) {
-      uuidList = [uuidList];
-    }
-
-    const placeholders = uuidList.map(() => "?").join(", ");
-    const sqlQuery = `SELECT uuid, username, nickname, avatar_url, signature  FROM users WHERE uuid IN (${placeholders})`;
-
-    sql.query(sqlQuery, uuidList, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        return result(err, null);
+  static findByUUIds(uuidList) {
+    return new Promise((resolve, reject) => {
+      if (!Array.isArray(uuidList)) {
+        uuidList = [uuidList];
       }
 
-      if (res.length) {
-        return result(null, res);
-      }
-
-      return result({ kind: "not_found" }, null);
+      const placeholders = uuidList.map(() => "?").join(", ");
+      const sqlQuery = `SELECT uuid, username, nickname, avatar_url, signature FROM users WHERE uuid IN (${placeholders})`;
+      sql.query(sqlQuery, uuidList, (err, res) => {
+        if (err) {
+          reject(err);
+        } else if (res.length > 0) {
+          resolve(res);
+        } else {
+          reject({ kind: "not_found" });
+        }
+        reject({ kind: "not_found" });
+      });
     });
   }
 

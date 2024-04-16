@@ -70,8 +70,11 @@ exports.findOne = (req, res) => {
         message: "User found",
         data: {
           uuid: data.uuid,
+          avatarUrl: data.avatar_url || '',
           username: data.username,
+          nickname: data.nickname,
           email: data.email,
+          signature: data.signature,
         },
       });
   });

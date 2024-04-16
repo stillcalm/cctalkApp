@@ -9,6 +9,7 @@ const { jwtAuth } = require("./middleware/jwt");
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users.routes");
 const friendRouter = require("./routes/friend.routes");
+const chatsRouter = require("./routes/chats.routes");
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use(function (err, req, res, next) {
 app.use("/", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/friend", friendRouter);
+app.use("/api/chats", chatsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
