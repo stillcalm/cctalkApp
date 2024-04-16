@@ -12,8 +12,8 @@ exports.addFriend = async (req, res) => {
   try {
     const data = await User.findByUsername(req.body.friendName);
     if (!data) {
-      return res.status(200).send({
-        status: 200,
+      return res.status(404).send({
+        status: 404,
         message: "Friend not found!",
       });
     }
@@ -48,34 +48,57 @@ exports.addFriend = async (req, res) => {
   }
 };
 
-exports.getFriends = (req, res) => {
-  Friend.getFriendsByUUID(req.query.uuid, (err, data) => {
-    if (err) {
-      return res.status(500).send({
-        message: "Error retrieving friend with id " + req.params.uuid,
-      });
-    }
-    const friendsList = [];
-    data.forEach((friendReLation) => {
-      if (friendReLation.user1_uuid === req.query.uuid) {
-        friendsList.push(friendReLation.user2_uuid);
-      } else {
-        friendsList.push(friendReLation.user1_uuid);
-      }
+exports.verifyFriend = async (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Content can not be empty!",
     });
-    User.findByUUIds(friendsList, (err, data_) => {
-      if (err) {
-        return res.status(500).send({
-          message: "Error retrieving friend with id " + req.params.uuid,
+  }
+  try {
+    await Friend.updateFriendStatusByUUID(req.body.status, req.body.chat_uuid);
+    await Chats.updateChatStatusByUUID(req.body.status, req.body.chat_uuid);
+    return res.send({
+      status: 200,
+      message: "Friend was added successfully!",
+    });
+  } catch (err) {
+    console.error("Error adding friend:", err);
+    return res.status(500).send({
+      status: 500,
+      message: "Error adding friend",
+    });
+  }
+};
+
+exports.getFriends = async (req, res) => {
+  try {
+    const data = await Friend.getFriendsByUUID(req.query.uuid);
+    const friendsList = data.reduce((list, friendRelation) => {
+      if (friendRelation.user1_uuid === req.query.uuid) {
+        list.push({
+          chat_uuid: friendRelation.friend_uuid,
+          uuid: friendRelation.user2_uuid,
+        });
+      } else {
+        list.push({
+          chat_uuid: friendRelation.friend_uuid,
+          uuid: friendRelation.user1_uuid,
         });
       }
-      return res.send({
-        status: 200,
-        message: "Friends were retrieved successfully!",
-        data: {
-          friendsList: data_,
-        },
-      });
+      return list;
+    }, []);
+
+    return res.send({
+      status: 200,
+      message: "Friends were retrieved successfully!",
+      data: {
+        friendsList: friendsList,
+      },
     });
-  });
+  } catch (err) {
+    console.error("Error getting friends:", err);
+    return res.status(500).send({
+      message: "Error retrieving friends: " + err.message,
+    });
+  }
 };

@@ -25,11 +25,11 @@ exports.create = (req, res) => {
       return res.status(200).send({
         status: 200,
         message: "User was registered successfully!",
-        data: {
+/*         data: {
           uuid: data.uuid,
           username: data.username,
           email: data.email,
-        },
+        }, */
       });
   });
 };
