@@ -25,7 +25,7 @@ exports.create = (req, res) => {
       return res.status(200).send({
         status: 200,
         message: "User was registered successfully!",
-/*         data: {
+        /*         data: {
           uuid: data.uuid,
           username: data.username,
           email: data.email,
@@ -70,7 +70,7 @@ exports.findOne = (req, res) => {
         message: "User found",
         data: {
           uuid: data.uuid,
-          avatarUrl: data.avatar_url || '',
+          avatarUrl: data.avatar_url || "",
           username: data.username,
           nickname: data.nickname,
           email: data.email,
@@ -99,6 +99,9 @@ exports.login = (req, res) => {
         message: "登录成功",
         data: {
           uuid: data.uuid,
+          username: data.username,
+          nickname: data.nickname,
+          avatarUrl: data.avatar_url,
           token: "Bearer " + token,
         },
       });
@@ -123,7 +126,8 @@ exports.getUserInfo = (req, res) => {
           uuid: data.uuid,
           username: data.username,
           email: data.email,
-          phone_num: data.phone_num,
+          phone_number: data.phone_number,
+          signature: data.signature,
           nickname: data.nickname,
           gender: data.gender,
           birthday: data.birthday,
@@ -133,15 +137,37 @@ exports.getUserInfo = (req, res) => {
   });
 };
 
+/* (err, data) => {
+  if (err) {
+    if (err.kind === "not_found") {
+      return res.status(404).send({
+        message: `Not found User with id ${req.query.username}.`,
+      });
+    }
+    return;
+  } else {
+    return res.send({
+      status: 200,
+      message: "User found",
+      data: {
+        uuid: data.uuid,
+        nickname: data.nickname,
+        username: data.username,
+        avatarUrl: data.avatar_url,
+        signature: data.signature,
+      },
+    });
+  }
+} */
+
 exports.getUserByUsername = (req, res) => {
-  User.findByUsername(req.query.username, (err, data) => {
-    if (err) {
-      if (err.kind === "not_found") {
+  User.findByUsername(req.query.username)
+    .then((data) => {
+      if (data.length === 0) {
         return res.status(404).send({
-          message: `Not found User with id ${req.query.username}.`,
+          message: `Not found User with username ${req.query.username}.`,
         });
       }
-    } else {
       return res.send({
         status: 200,
         message: "User found",
@@ -153,8 +179,12 @@ exports.getUserByUsername = (req, res) => {
           signature: data.signature,
         },
       });
-    }
-  });
+    })
+    .catch((err) => {
+      return res.status(500).send({
+        message: err.message || "Some error occurred while retrieving users.",
+      });
+    });
 };
 
 // Update a User identified by uuid
@@ -165,6 +195,7 @@ exports.updateUserInfo = (req, res) => {
       message: "Content can not be empty!",
     });
   }
+  console.log(req.body)
   User.updateUserInfo(req.params.uuid, req.body, (err, data) => {
     if (err)
       return res.status(500).send({

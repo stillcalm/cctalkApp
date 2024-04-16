@@ -1,13 +1,39 @@
 const sql = require("./db.js");
 
 class Message {
-  constructor(message) {
-    this.message = message;
+  static storeMessage(mes) {
+    return new Promise((resolve, reject) => {
+      sql.query(
+        "INSERT INTO messages (chat_uuid, sender_uuid, receiver_uuid, content) VALUES (?,?,?,?)",
+        [mes.chat_uuid, mes.sender_uuid, mes.receiver_uuid, mes.content],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          }
+          if (res.length > 0) {
+            resolve(res);
+          }
+          reject("No message sended");
+        }
+      );
+    });
   }
 
-  static getAllMessages(result) {
-    sql.query("SELECT * FROM messages", (err, res) => {
-      if (err) {}
+  static getHistoryMesByChatUuid(uuid) {
+    return new Promise((resolve, reject) => {
+      sql.query(
+        "SELECT chat_uuid, sender_uuid, receiver_uuid, content, created_at FROM messages WHERE chat_uuid = ? ORDER BY created_at DESC LIMIT 50",
+        uuid,
+        (err, res) => {
+          if (err) {
+            console.log("error: ");
+            reject(err);
+          }
+          resolve(res);
+        }
+      );
     });
   }
 }
+
+module.exports = Message;
