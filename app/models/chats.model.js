@@ -30,7 +30,7 @@ class Chats {
       }
 
       const placeholders = uuidList.map(() => "?").join(",");
-      const sqlQuery = `SELECT chat_uuid, status, last_message_uuid FROM chats_list WHERE chat_uuid IN (${placeholders})`;
+      const sqlQuery = `SELECT chat_uuid, status, last_message_id FROM chats_list WHERE chat_uuid IN (${placeholders})`;
       sql.query(sqlQuery, uuidList, (err, results) => {
         if (err) {
           reject(err);

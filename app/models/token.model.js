@@ -2,15 +2,19 @@ const sql = require("./db.js");
 
 class Token {
   // 创建token
-  static create(token) {
+  static create(uuid, token) {
     return new Promise((resolve, reject) => {
-      sql.query("INSERT INTO token SET ?", token, (err, res) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
+      sql.query(
+        "INSERT INTO token (user_uuid, token_value) VALUES (?, ?)",
+        [uuid, token],
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
         }
-      });
+      );
     });
   }
 
@@ -18,7 +22,7 @@ class Token {
   static get(uuid) {
     return new Promise((resolve, reject) => {
       sql.query(
-        "SELECT token_value FROM token WHERE uuid = ?",
+        "SELECT user_uuid,token_value FROM token WHERE user_uuid = ?",
         uuid,
         (err, res) => {
           if (err) {
@@ -32,12 +36,12 @@ class Token {
   }
 
   // 更新token
-  static update(data) {
+  static update(token_value, user_uuid) {
     // 假设 tokenData 包含 uuid 和要更新的其他字段
     return new Promise((resolve, reject) => {
       sql.query(
-        "UPDATE token SET ? WHERE uuid = ?",
-        [tokenData, tokenData.uuid],
+        "UPDATE token SET token_value = ? WHERE user_uuid = ?",
+        [token_value, user_uuid],
         (err, res) => {
           if (err) {
             reject(err);
@@ -53,7 +57,7 @@ class Token {
   static verify(uuid, token) {
     return new Promise((resolve, reject) => {
       sql.query(
-        "SELECT * FROM token WHERE uuid = ? AND token = ?",
+        "SELECT * FROM token WHERE user_uuid = ? AND token_value = ?",
         [uuid, token],
         (err, res) => {
           if (err) {
@@ -67,9 +71,9 @@ class Token {
   }
 
   // 删除token
-  static delete(token) {
+  static delete(uuid) {
     return new Promise((resolve, reject) => {
-      sql.query("DELETE FROM token WHERE token = ?", token, (res, err) => {
+      sql.query("DELETE FROM token WHERE user_uuid = ?", uuid, (res, err) => {
         if (err) {
           reject(err);
         } else {

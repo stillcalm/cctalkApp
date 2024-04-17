@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Token = require("../models/token.model");
 const mySecret = require("../config/config").SECRET;
 const jwt = require("jsonwebtoken");
 
@@ -7,31 +8,23 @@ exports.create = (req, res) => {
   if (!req.body) {
     return res.status(400).send({ message: "Content can not be empty!" });
   }
-
-  // Create a User
   const user = new User(
     req.body.username,
     req.body.password_hash,
     req.body.email
   );
-
-  // Save User in the database
-  User.create(user, (err, data) => {
-    if (err)
-      return res.status(500).send({
-        message: err.message || "Some error occurred while creating the User.",
-      });
-    else
+  User.create(user)
+    .then((data) => {
       return res.status(200).send({
         status: 200,
         message: "User was registered successfully!",
-        /*         data: {
-          uuid: data.uuid,
-          username: data.username,
-          email: data.email,
-        }, */
       });
-  });
+    })
+    .catch((err) => {
+      return res.status(500).send({
+        message: err.message || "Some error occurred while creating the User.",
+      });
+    });
 };
 
 // Retrieve all Users from the database.
@@ -82,31 +75,52 @@ exports.findOne = (req, res) => {
 
 // Update a User identified by the username and password in the request
 exports.login = (req, res) => {
-  User.login(req.body.username, req.body.password_hash, (err, data) => {
-    if (err) {
-      if (err.kind === "not_found") {
-        return res.status(401).send({
-          status: 401,
-          message: "账号或密码错误",
+  User.login(req.body.username, req.body.password_hash)
+    .then((user) => {
+      let token;
+      Token.get(user.uuid)
+        .then((tokenResult) => {
+          if (tokenResult.length === 0) {
+            token = jwt.sign({ username: req.body.username }, mySecret, {
+              expiresIn: "24h",
+            });
+            return Token.create(user.uuid, token);
+          } else {
+            token = jwt.sign({ username: req.body.username }, mySecret, {
+              expiresIn: "24h",
+            });
+            return Token.update(token, user.uuid);
+          }
+        })
+        .then(() => {
+          return res.send({
+            status: 200,
+            message: "登录成功",
+            data: {
+              uuid: user.uuid,
+              username: user.username,
+              nickname: user.nickname,
+              avatarUrl: user.avatar_url,
+              token: "Bearer " + token,
+            },
+          });
+        })
+        .catch((err) => {
+          // 处理获取或更新 token 时的错误
+          console.log("err", err);
+          return res.status(500).send({
+            status: 500,
+            message: "内部服务器错误，无法获取或更新 token",
+          });
         });
-      }
-    } else {
-      const token = jwt.sign({ username: req.body.username }, mySecret, {
-        expiresIn: "24h",
+    })
+    .catch((loginErr) => {
+      console.log("err", loginErr);
+      return res.status(401).send({
+        status: 401,
+        message: "账号或密码错误",
       });
-      return res.send({
-        status: 200,
-        message: "登录成功",
-        data: {
-          uuid: data.uuid,
-          username: data.username,
-          nickname: data.nickname,
-          avatarUrl: data.avatar_url,
-          token: "Bearer " + token,
-        },
-      });
-    }
-  });
+    });
 };
 
 // get User info by uuid
@@ -195,7 +209,7 @@ exports.updateUserInfo = (req, res) => {
       message: "Content can not be empty!",
     });
   }
-  console.log(req.body)
+  console.log(req.body);
   User.updateUserInfo(req.params.uuid, req.body, (err, data) => {
     if (err)
       return res.status(500).send({

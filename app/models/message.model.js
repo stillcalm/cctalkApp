@@ -10,7 +10,7 @@ class Message {
           if (err) {
             reject(err);
           }
-          if (res.length > 0) {
+          if (res) {
             resolve(res);
           }
           reject("No message sended");
@@ -23,7 +23,7 @@ class Message {
     return new Promise((resolve, reject) => {
       sql.query(
         "SELECT chat_uuid, sender_uuid, receiver_uuid, content, created_at FROM messages WHERE chat_uuid = ? ORDER BY created_at DESC LIMIT 50",
-        uuid,
+        [uuid],
         (err, res) => {
           if (err) {
             console.log("error: ");

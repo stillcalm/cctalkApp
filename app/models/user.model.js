@@ -14,39 +14,45 @@ class User {
     this.birthday = "2000-01-01";
     this.status = "offline";
   }
-  static create(newUser, result) {
-    sql.query("INSERT INTO users SET ?", newUser, (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
+  static create(newUser) {
+    return new Promise((resolve, reject) => {
+      sql.query("INSERT INTO users SET ?", newUser, (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          reject(err);
+          return;
+        }
+        if (res.affectedRows == 0) {
+          reject("not_found");
+          return;
+        }
+        console.log(res);
+        resolve(res);
         return;
-      }
-      if (res.affectedRows == 0) {
-        result({ kind: "not_found" }, null);
-        return;
-      }
-      result(null, res);
+      });
     });
   }
 
-  static login(username, password_hash, result) {
-    sql.query(
-      "SELECT * FROM users WHERE username = ? AND password_hash = ?",
-      [username, password_hash],
-      (err, res) => {
-        if (err) {
-          console.log("error: ", err);
-          result(err, null);
+  static login(username, password_hash) {
+    return new Promise((resolve, reject) => {
+      sql.query(
+        "SELECT * FROM users WHERE username = ? AND password_hash = ?",
+        [username, password_hash],
+        (err, res) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (res.length) {
+            console;
+            resolve(res[0]);
+            return;
+          }
+          reject("not_found");
           return;
         }
-        if (res.length) {
-          result(null, res[0]);
-          return;
-        }
-        result({ kind: "not_found" }, null);
-        return;
-      }
-    );
+      );
+    });
   }
 
   static updateUserInfo(uuid, user, result) {
