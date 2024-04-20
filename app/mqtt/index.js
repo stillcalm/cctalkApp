@@ -5,11 +5,16 @@ const ws = require("websocket-stream");
 ws.createServer({ server: mqttServer }, aedes.handle);
 
 // 身份验证
-aedes.authenticate = function (_client, username, passwordHash, callback) {
+aedes.authenticate = function (_client, username, token, callback) {
   // with no error, successful be true
   // callback(error, successful)
   // 这里可以进行用户名和密码的验证
-  callback(null, Mqtt.login(username, passwordHash));
+  callback(
+    null,
+    Mqtt.login(username, token).catch((err) => {
+      console.log(err);
+    })
+  );
 };
 
 // 客户端连接

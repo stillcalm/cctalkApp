@@ -4,8 +4,14 @@ class Message {
   static storeMessage(mes) {
     return new Promise((resolve, reject) => {
       sql.query(
-        "INSERT INTO messages (chat_uuid, sender_uuid, receiver_uuid, content) VALUES (?,?,?,?)",
-        [mes.chat_uuid, mes.sender_uuid, mes.receiver_uuid, mes.content],
+        "INSERT INTO messages (mes_uuid, chat_uuid, sender_uuid, receiver_uuid, content) VALUES (?,?,?,?,?)",
+        [
+          mes.mes_uuid,
+          mes.chat_uuid,
+          mes.sender_uuid,
+          mes.receiver_uuid,
+          mes.content,
+        ],
         (err, res) => {
           if (err) {
             reject(err);
@@ -22,7 +28,7 @@ class Message {
   static getHistoryMesByChatUuid(uuid) {
     return new Promise((resolve, reject) => {
       sql.query(
-        "SELECT chat_uuid, sender_uuid, receiver_uuid, content, created_at FROM messages WHERE chat_uuid = ? ORDER BY created_at DESC LIMIT 50",
+        "SELECT mes_uuid, chat_uuid, sender_uuid, receiver_uuid, content, created_at FROM messages WHERE chat_uuid = ? ORDER BY created_at DESC LIMIT 50",
         [uuid],
         (err, res) => {
           if (err) {

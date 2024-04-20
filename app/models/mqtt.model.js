@@ -1,23 +1,23 @@
 const sql = require("./db.js");
 
 class Mqtt {
-  static login(uuid, password_hash) {
+  static login(uuid, token) {
     return new Promise((resolve, reject) => {
       sql.query(
-        `SELECT username FROM users WHERE uuid = ? AND password_hash = ?`,
-        [uuid, password_hash],
+        `SELECT * FROM token WHERE user_uuid = ? AND token_value = ?`,
+        [uuid, token],
         (err, res) => {
           if (err) {
-            console.error("error: ", err);
-            reject(err);
+            reject(err); // 在发生错误时拒绝 Promise
             return;
           }
-          if (res.length > 0) {
-            console.log("Login successful for user:", res[0].username);
-            resolve(true);
+          console.log("res: ", res);
+          if (res.length > 0 && res[0].token_type === "access") {
+            console.log("Login successful for user:", uuid);
+            resolve(true); // 登录成功时解析 Promise
           } else {
             console.log("Login failed for uuid:", uuid);
-            resolve(false);
+            resolve(false); // 登录失败时仍然解析 Promise，但传递 false
           }
         }
       );
