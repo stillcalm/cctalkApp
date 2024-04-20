@@ -209,7 +209,6 @@ exports.updateUserInfo = (req, res) => {
       message: "Content can not be empty!",
     });
   }
-  console.log(req.body);
   User.updateUserInfo(req.params.uuid, req.body, (err, data) => {
     if (err)
       return res.status(500).send({

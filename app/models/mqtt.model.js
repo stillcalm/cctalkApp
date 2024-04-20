@@ -8,10 +8,9 @@ class Mqtt {
         [uuid, token],
         (err, res) => {
           if (err) {
-            reject(err); // 在发生错误时拒绝 Promise
+            reject(err);
             return;
           }
-          console.log("res: ", res);
           if (res.length > 0 && res[0].token_type === "access") {
             console.log("Login successful for user:", uuid);
             resolve(true); // 登录成功时解析 Promise

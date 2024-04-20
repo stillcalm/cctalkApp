@@ -35,7 +35,7 @@ class Message {
             console.log("error: ");
             reject(err);
           }
-          resolve(res);
+          resolve(res.reverse());
         }
       );
     });

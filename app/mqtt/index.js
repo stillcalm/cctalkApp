@@ -4,6 +4,7 @@ const mqttServer = require("http").createServer();
 const ws = require("websocket-stream");
 ws.createServer({ server: mqttServer }, aedes.handle);
 
+
 // 身份验证
 aedes.authenticate = function (_client, username, token, callback) {
   // with no error, successful be true
